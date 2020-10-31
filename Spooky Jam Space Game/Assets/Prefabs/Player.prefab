@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 1767643145}
   - component: {fileID: 1767643146}
   m_Layer: 8
-  m_Name: GameObject
+  m_Name: FuelSound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -187,7 +187,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -5156,7 +5156,9 @@ MonoBehaviour:
   rb: {fileID: 0}
   jetpack: {fileID: 8310554451825589892}
   anim: {fileID: 0}
-  fuelBoost: {fileID: 0}
+  fuelBoost: {fileID: 1767643146}
+  useFuel: {fileID: 8300000, guid: 71a6f673aa1fd6f4b9e090ded7707f5b, type: 3}
+  noFuel: {fileID: 8300000, guid: 3c231901b2520e6478f535e8c0cc2461, type: 3}
   speed: 10
   horizontal: 0
   jumpPower: 10
