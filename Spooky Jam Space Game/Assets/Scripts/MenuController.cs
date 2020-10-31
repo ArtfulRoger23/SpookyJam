@@ -23,6 +23,8 @@ public class MenuController : MonoBehaviour
 
     [SerializeField]
     private bool gamePaused;
+    [SerializeField]
+    private bool smoothPause;
 
     private void Start()
     {
@@ -34,6 +36,7 @@ public class MenuController : MonoBehaviour
         }
 
         gamePaused = false;
+        smoothPause = false;
     }
 
     private void Update()
@@ -53,15 +56,37 @@ public class MenuController : MonoBehaviour
 
         if (gamePaused)
         {
-            StartCoroutine(ChangeTime(1f, 0f, 1f)); //Time.timeScale = 0f;
+            if (smoothPause)
+                StartCoroutine(ChangeTime(1f, 0f, 1f)); //Time.timeScale = 0f;
+            else
+            {
+                Time.timeScale = 0f;
+
+                pauseDefaultMenu.SetActive(true);
+                pauseOptionsMenu.SetActive(false);
+                pauseControlsMenu.SetActive(false);
+                pauseMenu.SetActive(true);
+            }
         }
         else
         {
-            StartCoroutine(ChangeTime(0f, 1f, 1f));
-            pauseDefaultMenu.SetActive(true);
-            pauseOptionsMenu.SetActive(false);
-            pauseControlsMenu.SetActive(false);
-            pauseMenu.SetActive(gamePaused);
+            if (smoothPause)
+            {
+                StartCoroutine(ChangeTime(0f, 1f, 1f));
+                pauseDefaultMenu.SetActive(true);
+                pauseOptionsMenu.SetActive(false);
+                pauseControlsMenu.SetActive(false);
+                pauseMenu.SetActive(gamePaused);
+            }
+            else
+            {
+                Time.timeScale = 1f;
+
+                pauseDefaultMenu.SetActive(true);
+                pauseOptionsMenu.SetActive(false);
+                pauseControlsMenu.SetActive(false);
+                pauseMenu.SetActive(gamePaused);
+            }
         }
     }
 

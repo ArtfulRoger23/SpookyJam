@@ -38,6 +38,11 @@ public class Player : MonoBehaviour
     private bool isInGravity;
     [SerializeField]
     private bool reachedGoal;
+    [SerializeField]
+    private bool canPlaceFlag;
+
+    [Header("GameObjects")]
+    private Checkpoint lastCheckpoint;
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +53,7 @@ public class Player : MonoBehaviour
         jetpackOn = false;
         jetpackFuel = 100;
         reachedGoal = false;
+        canPlaceFlag = false;
     }
 
     private void FixedUpdate()
@@ -138,6 +144,10 @@ public class Player : MonoBehaviour
                 StartCoroutine(FinishLevel());
             }
         }
+        else if (collision.gameObject.CompareTag("Border"))
+        {
+            Death();
+        }
     }
 
     private IEnumerator FinishLevel()
@@ -172,6 +182,24 @@ public class Player : MonoBehaviour
 
             isInGravity = true;
         }
+        else if (collision.CompareTag("Checkpoint"))
+        {
+            canPlaceFlag = true;
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Checkpoint cp = collision.gameObject.GetComponent<Checkpoint>();
+
+                Debug.Log("Pressed E");
+
+                if (!cp.Activated)
+                {
+                    Debug.Log("Activate");
+                    cp.Activate();
+                    lastCheckpoint = cp;
+                }
+            }
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -181,6 +209,27 @@ public class Player : MonoBehaviour
             rb.drag = 0.2f;
 
             isInGravity = false;
+        }
+        else if (collision.CompareTag("Checkpoint"))
+        {
+            canPlaceFlag = false;
+        }
+    }
+
+    private void Death()
+    {
+        rb.velocity = Vector2.zero;
+
+        if (lastCheckpoint != null)
+            transform.position = lastCheckpoint.gameObject.transform.position;
+        else
+        {
+            GameObject respawn = GameObject.FindGameObjectWithTag("Respawn");
+
+            if (respawn != null)
+            {
+                transform.position = respawn.transform.position;
+            }
         }
     }
 }

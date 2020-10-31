@@ -6,6 +6,8 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField]
     private Camera cam;
+    [SerializeField]
+    private GameObject mapLight;
 
     [Header("Transforms")]
     [SerializeField]
@@ -52,6 +54,7 @@ public class CameraController : MonoBehaviour
         defaultRotation = transform.rotation;
         cam = GetComponent<Camera>();
         defaultSize = cam.orthographicSize;
+        mapLight.SetActive(false);
 
         //rotateWithTarget = (PlayerPrefs.GetInt("RotateWithPlayer") == 1) ? true : false;
     }
@@ -94,6 +97,7 @@ public class CameraController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M))
         {
             viewMap = !viewMap;
+            mapLight.SetActive(viewMap);
         }
     }
 }
