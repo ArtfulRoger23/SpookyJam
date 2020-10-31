@@ -6,9 +6,12 @@ public class GravityPoint : MonoBehaviour
 {
     [SerializeField]
     private float gravityScale;
-
     [SerializeField]
     private float planetRadius;
+    [SerializeField]
+    private float gravityMinRange;
+    [SerializeField]
+    private float gravityMaxRange;
 
     public float PlanetRadius { get => planetRadius; }
 
@@ -31,7 +34,16 @@ public class GravityPoint : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Vector3 dir = (transform.position - collision.transform.position) * gravityScale;
+        float gravitationalPower = gravityScale;
+        float dist = Vector2.Distance(collision.transform.position, transform.position);
+
+        if (dist > (planetRadius + gravityMinRange))
+        {
+            float min = planetRadius + gravityMinRange;
+            gravitationalPower = (((min + gravityMaxRange) - dist) / gravityMaxRange) * gravitationalPower;
+        }
+
+        Vector3 dir = (transform.position - collision.transform.position) * gravitationalPower;
 
         collision.GetComponent<Rigidbody2D>().AddForce(dir);
 
