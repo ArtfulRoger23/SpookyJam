@@ -173,35 +173,17 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Finish"))
         {
-            if (!reachedGoal)
-            {
-                reachedGoal = true;
-                StartCoroutine(FinishLevel());
-            }
+            VictoryPoint v = collision.gameObject.GetComponent<VictoryPoint>();
+
+            if (v.Activated)
+                return;
+
+            v.Activate();
         }
         else if (collision.gameObject.CompareTag("Border"))
         {
             Death();
         }
-    }
-
-    private IEnumerator FinishLevel()
-    {
-        float time = Time.realtimeSinceStartup;
-        float timer = 0.0f;
-
-        while (timer < 1.0f)
-        {
-            Time.timeScale = Mathf.Lerp(1.0f, 0.0f, timer / 1.0f);
-            timer += (Time.realtimeSinceStartup - time);
-            time = Time.realtimeSinceStartup;
-
-            yield return null;
-        }
-
-        Time.timeScale = 0.0f;
-
-        SceneManager.LoadScene(2);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
