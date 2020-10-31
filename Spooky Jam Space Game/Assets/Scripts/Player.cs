@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private AudioSource fuelBoost;
+    [SerializeField]
+    private AudioSource planetCollide;
 
     [SerializeField]
     private AudioClip useFuel;
@@ -195,7 +197,14 @@ public class Player : MonoBehaviour
             float distance = Mathf.Abs(collision.GetComponent<GravityPoint>().PlanetRadius - Vector2.Distance(transform.position, collision.transform.position));
             //Debug.Log(distance);
 
+            bool temp = isGrounded;
+
             isGrounded = distance < 0.6f;
+            
+            if (temp == false && isGrounded == true)
+            {
+
+            }
 
             isInGravity = true;
             anim.SetBool("floatIdle", false);
