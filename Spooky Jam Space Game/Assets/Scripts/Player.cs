@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField]
     private ParticleSystem jetpack;
+    [SerializeField]
+    private Animator anim;
 
     [Header("Floats")]
     [SerializeField]
@@ -23,31 +25,44 @@ public class Player : MonoBehaviour
     private float jetpackFuel;
     [SerializeField]
     private float jetpackPower;
+    [SerializeField]
+    private float rotateSpeed;
 
     [Header("Bools")]
     [SerializeField]
     private bool isGrounded;
     [SerializeField]
     private bool jetpackOn;
+    [SerializeField]
+    private bool isInGravity;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        jetpack.gameObject.SetActive(jetpackOn);
+        anim = GetComponent<Animator>();
         jetpackOn = false;
         jetpackFuel = 100;
-        jetpack.gameObject.SetActive(jetpackOn);
     }
 
     private void FixedUpdate()
     {
-        rb.AddForce(transform.right * horizontal * speed);
+        if (isInGravity)
+            rb.AddForce(transform.right * horizontal * speed);
     }
 
     // Update is called once per frame
     void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
+        if (isInGravity)
+        {
+            anim.SetFloat("speed", Mathf.Abs(horizontal));
+
+            if (horizontal != 0)
+                transform.localScale = new Vector3(Mathf.Clamp(horizontal, -0.5f, 0.5f), 0.5f, 0.5f);
+        }
 
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
@@ -72,6 +87,17 @@ public class Player : MonoBehaviour
         {
             jetpackOn = !jetpackOn;
             jetpack.gameObject.SetActive(jetpackOn);
+        }
+
+        if (!isInGravity)
+        {
+            Quaternion targetRotation = transform.rotation;
+            float angle = transform.rotation.z;
+
+            if (Input.GetKey(KeyCode.RightArrow))
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z - 1 * rotateSpeed * Time.deltaTime);
+            else if (Input.GetKey(KeyCode.LeftArrow))
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z + 1 * rotateSpeed * Time.deltaTime);
         }
     }
 
@@ -104,7 +130,9 @@ public class Player : MonoBehaviour
             float distance = Mathf.Abs(collision.GetComponent<GravityPoint>().PlanetRadius - Vector2.Distance(transform.position, collision.transform.position));
             //Debug.Log(distance);
 
-            isGrounded = distance < 0.5f;
+            isGrounded = distance < 0.6f;
+
+            isInGravity = true;
         }
     }
 
@@ -113,6 +141,8 @@ public class Player : MonoBehaviour
         if (collision.CompareTag("Planet"))
         {
             rb.drag = 0.2f;
+
+            isInGravity = false;
         }
     }
 }
