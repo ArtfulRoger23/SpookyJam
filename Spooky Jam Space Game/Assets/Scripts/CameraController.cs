@@ -52,6 +52,8 @@ public class CameraController : MonoBehaviour
         defaultRotation = transform.rotation;
         cam = GetComponent<Camera>();
         defaultSize = cam.orthographicSize;
+
+        //rotateWithTarget = (PlayerPrefs.GetInt("RotateWithPlayer") == 1) ? true : false;
     }
 
     private void FixedUpdate()

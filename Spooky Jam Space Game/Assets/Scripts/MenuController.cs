@@ -12,6 +12,17 @@ public class MenuController : MonoBehaviour
     private GameObject optionsMenu;
     [SerializeField]
     private GameObject controlsMenu;
+    [SerializeField]
+    private GameObject pauseMenu;
+    [SerializeField]
+    private GameObject pauseDefaultMenu;
+    [SerializeField]
+    private GameObject pauseOptionsMenu;
+    [SerializeField]
+    private GameObject pauseControlsMenu;
+
+    [SerializeField]
+    private bool gamePaused;
 
     private void Start()
     {
@@ -21,10 +32,67 @@ public class MenuController : MonoBehaviour
             optionsMenu.SetActive(false);
             controlsMenu.SetActive(false);
         }
+
+        gamePaused = false;
+    }
+
+    private void Update()
+    {
+        if (SceneManager.GetActiveScene().name == "MainMenu" || SceneManager.GetActiveScene().name == "EndScreen")
+            return;
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            PauseGame();
+        }
+    }
+
+    private void PauseGame()
+    {
+        gamePaused = !gamePaused;
+
+        if (gamePaused)
+        {
+            StartCoroutine(ChangeTime(1f, 0f, 1f)); //Time.timeScale = 0f;
+        }
+        else
+        {
+            StartCoroutine(ChangeTime(0f, 1f, 1f));
+            pauseDefaultMenu.SetActive(true);
+            pauseOptionsMenu.SetActive(false);
+            pauseControlsMenu.SetActive(false);
+            pauseMenu.SetActive(gamePaused);
+        }
+    }
+
+    private IEnumerator ChangeTime(float start, float end, float time)
+    {
+        float lastTime = Time.realtimeSinceStartup;
+        float timer = 0.0f;
+
+        while (timer < time)
+        {
+            Time.timeScale = Mathf.Lerp(start, end, timer / time);
+            timer += (Time.realtimeSinceStartup - lastTime);
+            lastTime = Time.realtimeSinceStartup;
+
+            yield return null;
+        }
+
+        Time.timeScale = end;
+
+        if (gamePaused)
+        {
+            pauseDefaultMenu.SetActive(true);
+            pauseOptionsMenu.SetActive(false);
+            pauseControlsMenu.SetActive(false);
+            pauseMenu.SetActive(true);
+        }
     }
 
     public void StartGame()
     {
+        Time.timeScale = 1.0f;
         SceneManager.LoadScene(1);
     }
 
@@ -57,5 +125,31 @@ public class MenuController : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void ResumeGame()
+    {
+        PauseGame();
+    }
+
+    public void PauseBack()
+    {
+        pauseDefaultMenu.SetActive(true);
+        pauseOptionsMenu.SetActive(false);
+        pauseControlsMenu.SetActive(false);
+    }
+
+    public void PauseOptions()
+    {
+        pauseDefaultMenu.SetActive(false);
+        pauseOptionsMenu.SetActive(true);
+        pauseControlsMenu.SetActive(false);
+    }
+
+    public void PauseControls()
+    {
+        pauseDefaultMenu.SetActive(false);
+        pauseOptionsMenu.SetActive(false);
+        pauseControlsMenu.SetActive(true);
     }
 }

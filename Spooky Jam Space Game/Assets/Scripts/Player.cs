@@ -79,6 +79,7 @@ public class Player : MonoBehaviour
             if (!jetpackOn)
             {
                 rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+                anim.SetTrigger("jump");
             }
         }
 
