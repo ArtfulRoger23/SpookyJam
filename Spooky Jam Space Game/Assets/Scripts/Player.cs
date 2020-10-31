@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -35,6 +36,8 @@ public class Player : MonoBehaviour
     private bool jetpackOn;
     [SerializeField]
     private bool isInGravity;
+    [SerializeField]
+    private bool reachedGoal;
 
     // Start is called before the first frame update
     void Start()
@@ -44,10 +47,14 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         jetpackOn = false;
         jetpackFuel = 100;
+        reachedGoal = false;
     }
 
     private void FixedUpdate()
     {
+        if (reachedGoal)
+            return;
+
         if (isInGravity)
             rb.AddForce(transform.right * horizontal * speed);
     }
@@ -55,6 +62,9 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (reachedGoal)
+            return;
+
         horizontal = Input.GetAxisRaw("Horizontal");
         if (isInGravity)
         {
@@ -119,6 +129,33 @@ public class Player : MonoBehaviour
 
             Destroy(collision.gameObject);
         }
+        else if (collision.gameObject.CompareTag("Finish"))
+        {
+            if (!reachedGoal)
+            {
+                reachedGoal = true;
+                StartCoroutine(FinishLevel());
+            }
+        }
+    }
+
+    private IEnumerator FinishLevel()
+    {
+        float time = Time.realtimeSinceStartup;
+        float timer = 0.0f;
+
+        while (timer < 1.0f)
+        {
+            Time.timeScale = Mathf.Lerp(1.0f, 0.0f, timer / 1.0f);
+            timer += (Time.realtimeSinceStartup - time);
+            time = Time.realtimeSinceStartup;
+
+            yield return null;
+        }
+
+        Time.timeScale = 0.0f;
+
+        SceneManager.LoadScene(2);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
