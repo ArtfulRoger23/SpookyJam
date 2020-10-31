@@ -5,23 +5,36 @@ using UnityEngine.PlayerLoop;
 
 public class Player : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField]
     private Rigidbody2D rb;
+    [SerializeField]
+    private ParticleSystem jetpack;
 
+    [Header("Floats")]
     [SerializeField]
     private float speed = 10;
     [SerializeField]
     private float horizontal;
     [SerializeField]
     private float jumpPower;
+    [SerializeField]
+    private float jetpackFuel;
+    [SerializeField]
+    private float jetpackPower;
 
+    [Header("Bools")]
     [SerializeField]
     private bool isGrounded;
+    [SerializeField]
+    private bool jetpackOn;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        jetpackOn = false;
+        jetpack.gameObject.SetActive(jetpackOn);
     }
 
     private void FixedUpdate()
@@ -36,7 +49,27 @@ public class Player : MonoBehaviour
 
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+            if (!jetpackOn)
+            {
+                rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+            }
+        }
+
+        if (Input.GetKey(KeyCode.Space) && jetpackOn)
+        {
+            rb.AddForce(transform.up * 4, ForceMode2D.Force);
+            jetpackFuel -= 1 * Time.deltaTime;
+            jetpack.startSpeed = -5f;
+        }
+        else
+        {
+            jetpack.startSpeed = -2f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            jetpackOn = !jetpackOn;
+            jetpack.gameObject.SetActive(jetpackOn);
         }
     }
 
@@ -47,14 +80,9 @@ public class Player : MonoBehaviour
             rb.drag = 1f;
 
             float distance = Mathf.Abs(collision.GetComponent<GravityPoint>().PlanetRadius - Vector2.Distance(transform.position, collision.transform.position));
-            Debug.Log(distance);
+            //Debug.Log(distance);
 
             isGrounded = distance < 0.5f;
-
-            //if (distance < 0.5f)
-            //{
-            //    isGrounded = distance < 0.5f;
-            //}
         }
     }
 
