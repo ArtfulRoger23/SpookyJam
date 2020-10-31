@@ -40,6 +40,8 @@ public class Player : MonoBehaviour
     private bool reachedGoal;
     [SerializeField]
     private bool canPlaceFlag;
+    [SerializeField]
+    private bool canJetpack;
 
     [Header("GameObjects")]
     private Checkpoint lastCheckpoint;
@@ -80,30 +82,28 @@ public class Player : MonoBehaviour
                 transform.localScale = new Vector3(Mathf.Clamp(horizontal, -0.5f, 0.5f), 0.5f, 0.5f);
         }
 
+        if (isGrounded)
+            canJetpack = false;
+
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            if (!jetpackOn)
-            {
-                rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-                anim.SetTrigger("jump");
-            }
+            rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
+            anim.SetTrigger("jump");
+        }
+        else if (Input.GetButtonUp("Jump") && !isGrounded)
+        {
+            canJetpack = true;
         }
 
-        if (Input.GetKey(KeyCode.Space) && jetpackOn && jetpackFuel > 0)
+        if (Input.GetKey(KeyCode.Space) && canJetpack /*jetpackOn*/ && jetpackFuel > 0)
         {
             rb.AddForce(transform.up * 4, ForceMode2D.Force);
             jetpackFuel -= 1 * Time.deltaTime;
-            jetpack.startSpeed = -5f;
+            jetpack.gameObject.SetActive(true);
         }
         else
         {
-            jetpack.startSpeed = -2f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            jetpackOn = !jetpackOn;
-            jetpack.gameObject.SetActive(jetpackOn);
+            jetpack.gameObject.SetActive(false);
         }
 
         if (!isInGravity)
