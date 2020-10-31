@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float jumpPower;
     [SerializeField]
+    [Range(0, 100)]
     private float jetpackFuel;
     [SerializeField]
     private float jetpackPower;
@@ -34,6 +35,7 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         jetpackOn = false;
+        jetpackFuel = 100;
         jetpack.gameObject.SetActive(jetpackOn);
     }
 
@@ -55,7 +57,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(KeyCode.Space) && jetpackOn)
+        if (Input.GetKey(KeyCode.Space) && jetpackOn && jetpackFuel > 0)
         {
             rb.AddForce(transform.up * 4, ForceMode2D.Force);
             jetpackFuel -= 1 * Time.deltaTime;
@@ -70,6 +72,26 @@ public class Player : MonoBehaviour
         {
             jetpackOn = !jetpackOn;
             jetpack.gameObject.SetActive(jetpackOn);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("PickUp"))
+        {
+            PickUp p = collision.gameObject.GetComponent<PickUp>();
+
+            if (p != null)
+            {
+                switch (p.PickUpType)
+                {
+                    case "Fuel":
+                        jetpackFuel += 50;
+                        break;
+                }
+            }
+
+            Destroy(collision.gameObject);
         }
     }
 

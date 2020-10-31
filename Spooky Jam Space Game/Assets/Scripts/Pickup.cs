@@ -2,8 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pickup : MonoBehaviour
+public class PickUp : MonoBehaviour
 {
+    [SerializeField]
+    private float rotateSpeed;
+    [SerializeField]
+    private string pickUpType;
+
+    public string PickUpType { get => pickUpType; }
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,11 +21,6 @@ public class Pickup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-
+        transform.Rotate(new Vector3(0, 90, 0) * rotateSpeed * Time.deltaTime);
     }
 }
