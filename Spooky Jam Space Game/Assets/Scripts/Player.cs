@@ -14,6 +14,14 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Animator anim;
 
+    [SerializeField]
+    private AudioSource fuelBoost;
+
+    [SerializeField]
+    private AudioClip useFuel;
+    [SerializeField]
+    private AudioClip noFuel;
+
     [Header("Floats")]
     [SerializeField]
     private float speed = 10;
@@ -74,12 +82,17 @@ public class Player : MonoBehaviour
             return;
 
         horizontal = Input.GetAxisRaw("Horizontal");
+
         if (isInGravity)
         {
             anim.SetFloat("speed", Mathf.Abs(horizontal));
 
             if (horizontal != 0)
                 transform.localScale = new Vector3(Mathf.Clamp(horizontal, -0.5f, 0.5f), 0.5f, 0.5f);
+        }
+        else
+        {
+            anim.SetFloat("speed", 0f);
         }
 
         if (isGrounded)
@@ -95,15 +108,34 @@ public class Player : MonoBehaviour
             canJetpack = true;
         }
 
-        if (Input.GetKey(KeyCode.Space) && canJetpack /*jetpackOn*/ && jetpackFuel > 0)
+        if (Input.GetKey(KeyCode.Space) && canJetpack && jetpackFuel > 0)
         {
             rb.AddForce(transform.up * 4, ForceMode2D.Force);
             jetpackFuel -= 1 * Time.deltaTime;
             jetpack.gameObject.SetActive(true);
+
+            if (!fuelBoost.isPlaying)
+            {
+                fuelBoost.clip = useFuel;
+                fuelBoost.Play();
+            }
+        }
+        else if (Input.GetKey(KeyCode.Space) && canJetpack && jetpackFuel <= 0)
+        {
+            if (!fuelBoost.isPlaying)
+            {
+                fuelBoost.clip = noFuel;
+                fuelBoost.Play();
+            }
         }
         else
         {
             jetpack.gameObject.SetActive(false);
+
+            if (fuelBoost.isPlaying)
+            {
+                fuelBoost.Stop();
+            }
         }
 
         if (!isInGravity)
@@ -124,6 +156,9 @@ public class Player : MonoBehaviour
         {
             PickUp p = collision.gameObject.GetComponent<PickUp>();
 
+            if (p.PickedUp)
+                return;
+
             if (p != null)
             {
                 switch (p.PickUpType)
@@ -134,7 +169,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            Destroy(collision.gameObject);
+            p.PickedUpItem();
         }
         else if (collision.gameObject.CompareTag("Finish"))
         {
@@ -181,20 +216,21 @@ public class Player : MonoBehaviour
             isGrounded = distance < 0.6f;
 
             isInGravity = true;
+            anim.SetBool("floatIdle", false);
         }
         else if (collision.CompareTag("Checkpoint"))
         {
             canPlaceFlag = true;
 
-            if (Input.GetKeyDown(KeyCode.E))
+            Checkpoint cp = collision.gameObject.GetComponent<Checkpoint>();
+
+            if (!cp.Activated)
             {
-                Checkpoint cp = collision.gameObject.GetComponent<Checkpoint>();
+                if (!cp.ClaimPrompt.activeSelf)
+                    cp.ClaimPrompt.SetActive(true);
 
-                Debug.Log("Pressed E");
-
-                if (!cp.Activated)
+                if (Input.GetKeyDown(KeyCode.E))
                 {
-                    Debug.Log("Activate");
                     cp.Activate();
                     lastCheckpoint = cp;
                 }
@@ -209,6 +245,7 @@ public class Player : MonoBehaviour
             rb.drag = 0.2f;
 
             isInGravity = false;
+            anim.SetBool("floatIdle", true);
         }
         else if (collision.CompareTag("Checkpoint"))
         {

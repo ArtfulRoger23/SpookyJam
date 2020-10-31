@@ -11,8 +11,11 @@ public class Checkpoint : MonoBehaviour
 
     [SerializeField]
     private SpriteRenderer spriteRenderer;
+    [SerializeField]
+    private GameObject claimPrompt;
 
     public bool Activated { get => activated; }
+    public GameObject ClaimPrompt { get => claimPrompt; }
 
     // Start is called before the first frame update
     void Start()
@@ -34,5 +37,6 @@ public class Checkpoint : MonoBehaviour
 
         activated = true;
         spriteRenderer.sprite = activateSprite;
+        claimPrompt.SetActive(false);
     }
 }
